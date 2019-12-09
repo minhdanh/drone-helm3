@@ -3,19 +3,28 @@ package run
 import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestHelp(t *testing.T) {
-	ctrl := gomock.NewController(t)
+type HelpTestSuite struct {
+	suite.Suite
+}
+
+func TestHelpTestSuite(t *testing.T) {
+	suite.Run(t, new(HelpTestSuite))
+}
+
+func (suite *HelpTestSuite) TestNewHelp() {
+	ctrl := gomock.NewController(suite.T())
 	defer ctrl.Finish()
 
 	mCmd := NewMockcmd(ctrl)
 	originalCommand := command
 
 	command = func(path string, args ...string) cmd {
-		assert.Equal(t, helmBin, path)
-		assert.Equal(t, []string{"help"}, args)
+		assert.Equal(suite.T(), helmBin, path)
+		assert.Equal(suite.T(), []string{"help"}, args)
 		return mCmd
 	}
 	defer func() { command = originalCommand }()
@@ -28,6 +37,6 @@ func TestHelp(t *testing.T) {
 		Run().
 		Times(1)
 
-	h := NewHelp()
+	h := NewHelp(false)
 	h.Run()
 }

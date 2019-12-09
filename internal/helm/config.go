@@ -40,6 +40,19 @@ type Config struct {
 	Chart        string ``                   // Also available for `lint`, in which case it must be a path to a chart directory
 	Release      string ``
 	Force        bool   `` //
+
+	// TODO: EKS support
+	// EKSCluster    string `envconfig:"EKS_CLUSTER"`     // I *think* this is specifically for tiller
+	// EKSRoleARN    string `envconfig:"EKS_ROLE_ARN"`    // I *think* this is specifically for tiller
+
+	// Not present in helm-3. TODO: deprecation warnings if present
+	// Purge         bool   ``                            // was a delete flag
+	// TillerNS      string `envconfig:"TILLER_NS"`
+	// RecreatePods  bool   `split_words:"true"`          // was a flag for upgrade
+	// Upgrade       bool   ``                            // was "upgrade tiller to the latest"
+	// CanaryImage   bool   `split_words:"true"`          // specifically the tiller canary image
+	// ClientOnly    bool   `split_words:"true"`          // was for `helm init`
+	// StableRepoURL string `envconfig:"STABLE_REPO_URL"` // was for `helm init`
 }
 
 type helmCommand string

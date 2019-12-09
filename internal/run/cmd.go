@@ -7,6 +7,7 @@ import (
 	"syscall"
 )
 
+// TODO: is this a sensible place to put this const?
 const helmBin = "/usr/bin/helm"
 
 // The cmd interface provides a generic form of exec.Cmd so that it can be mocked out in tests.

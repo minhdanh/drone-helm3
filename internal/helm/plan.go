@@ -3,9 +3,12 @@ package helm
 import (
 	"errors"
 	"github.com/pelotech/drone-helm3/internal/run"
+	"io"
+	"os"
 )
 
 // A Step is one step in the plan.
+// TODO: If no further interface methods materialize, Step should be called Runner instead
 type Step interface {
 	Run() error
 }
@@ -17,10 +20,26 @@ type Plan struct {
 
 // NewPlan makes a plan for running a helm operation.
 func NewPlan(cfg Config) (*Plan, error) {
+	gCfg := run.GlobalConfig{
+		Debug:          cfg.Debug,
+		KubeConfig:     cfg.KubeConfig,
+		Values:         cfg.Values,
+		StringValues:   cfg.StringValues,
+		ValuesFiles:    cfg.ValuesFiles,
+		Namespace:      cfg.Namespace,
+		Token:          cfg.Token,
+		SkipTLSVerify:  cfg.SkipTLSVerify,
+		Certificate:    cfg.Certificate,
+		APIServer:      cfg.APIServer,
+		ServiceAccount: cfg.ServiceAccount,
+		Stdout:         os.Stdout,
+		Stderr:         os.Stderr,
+	}
+
 	p := Plan{}
 	switch cfg.Command {
 	case "upgrade":
-		steps, err := upgrade(cfg)
+		steps, err := upgrade(cfg, gCfg)
 		if err != nil {
 			return nil, err
 		}
@@ -51,6 +70,7 @@ func NewPlan(cfg Config) (*Plan, error) {
 func (p *Plan) Execute() error {
 	for _, step := range p.steps {
 		if err := step.Run(); err != nil {
+			// TODO: fmt.Errorf
 			return err
 		}
 	}
@@ -58,9 +78,18 @@ func (p *Plan) Execute() error {
 	return nil
 }
 
-func upgrade(cfg Config) ([]Step, error) {
+func upgrade(cfg Config, gCfg run.GlobalConfig) ([]Step, error) {
+	uCfg := run.UpgradeConfig{
+		Chart:        cfg.Chart,
+		Release:      cfg.Release,
+		ChartVersion: cfg.ChartVersion,
+		Wait:         cfg.Wait,
+		ReuseValues:  cfg.ReuseValues,
+		Timeout:      cfg.Timeout,
+		Force:        cfg.Force,
+	}
 	steps := make([]Step, 0)
-	steps = append(steps, run.NewUpgrade(cfg.Release, cfg.Chart))
+	steps = append(steps, run.NewUpgrade(uCfg, gCfg))
 
 	return steps, nil
 }

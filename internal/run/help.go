@@ -6,7 +6,8 @@ import (
 
 // Help is a step in a helm Plan that calls `helm help`.
 type Help struct {
-	cmd cmd
+	cmd   cmd
+	debug bool
 }
 
 // Run launches the command.
@@ -15,8 +16,10 @@ func (h *Help) Run() error {
 }
 
 // NewHelp returns a new Help.
-func NewHelp() *Help {
-	h := Help{}
+func NewHelp(debug bool) *Help {
+	h := Help{
+		debug: debug,
+	}
 
 	h.cmd = command(helmBin, "help")
 	h.cmd.Stdout(os.Stdout)
